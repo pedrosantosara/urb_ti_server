@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2020",            /* versão do ECMAScript a ser usada para compilação */
+    "module": "commonjs",          /* sistema de módulos a ser usado (pode ser esnext, commonjs, etc.) */
+    "strict": true,                /* habilita todas as verificações de tipo estritas */
+    "esModuleInterop": true,       /* permite importar módulos CommonJS como módulos ES6 */
+    "skipLibCheck": true,          /* evita a verificação de bibliotecas de definição de tipo automaticamente incluídas */
+    "forceConsistentCasingInFileNames": true, /* garante consistência de caixa em nomes de arquivos */
+    "outDir": "./dist",            /* diretório de saída para arquivos JavaScript transpilados */
+    "rootDir": "./src",            /* diretório de origem para os arquivos TypeScript */
+    "declaration": true,           /* gera arquivos de declaração (.d.ts) */
+    "sourceMap": true              /* gera arquivos de mapeamento de origem (.map) para depuração */
+  },
+  "include": ["src/**/*.ts"],      /* padrão de inclusão de arquivos TypeScript */
+  "exclude": ["node_modules"]      /* padrão de exclusão de pastas ou arquivos */
+}

@@ -1,0 +1,34 @@
+Finalidade: Automatizar a triagem e fazer o armazenamento automático do chamado atrelado ao computador
+
+BASE DE DADOS TI-URB
+
+TABELA COMPUTADORES-
+	IDENTIFICADOR: TOMBAMENTO
+	PROPRIETÁRIO: COLABORADOR.IDENTIFICADOR
+		
+TABELA COLABORADORES-
+	IDENTIFICADOR: Matrícula do colaborador
+	NOME: Nome do colaborador
+	SETOR: Setor do colaborador
+	CARGO: Cargo do colaborador
+
+TABELA PRONTUÁRIOS-(Esta tabela tera relação com os computadores e os colaboradores)
+	COMPUTADOR_IDENTIFICADOR: Relação com computador
+	COLABORADOR_IDENTIFICADOR: Relação com colaborador
+	MOTIVO: Motivo do chamado
+	SOLUÇÃO: Solução do chamado
+	
+	
+
+Posteriormente serão adicionados outros tipos de equipamentos que o setor de TI fornece suporte.
+
+
+Essas informações são para um sistema mais robusto onde seria necessário um controle melhor dos computadores - NÃO SE APLICA
+		WINDOWS KEY: chave de ativação do windows atrelada ao computador	
+		SISTEMA_OPERACIONAL: Sistema operacional do computador
+		MARCA: Marca do computador
+		MODELO: Modelo do computador(notebook ou desktop)
+		PLACA_MÃE: placa mãe do computador
+		PROCESSADOR: Processador do computador
+		PLACA DE VÍDEO: Placa de vídeo do computador(Não obrigatório)
+		RAM: RAM do computador
