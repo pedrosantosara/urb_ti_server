@@ -67,7 +67,7 @@ class Computers {
             return res.status(201).json({ success: true, data: computer });
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ success: false, error: "Internal server error" });
+            return res.status(500).json({success: false, error: 'unexpected_error'});
         }
     }
 
@@ -90,7 +90,7 @@ class Computers {
             return res.status(200).json({ success: true, data: computer });
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ success: false, error: "Internal server error" });
+            return res.status(500).json({success: false, error: 'unexpected_error'});
         }
     }
 
@@ -128,7 +128,7 @@ class Computers {
             const allComputers = await prisma.computer.findMany({ take: Number(take), skip: Number(skip)*10 });
             return res.status(200).json({ success: true, data: allComputers, pages: totalPages });
         } catch (error) {
-            return res.status(500).json({ success: false, error: "Internal server error" });
+            return res.status(500).json({success: false, error: 'unexpected_error'});
         }
     }
 
@@ -170,7 +170,7 @@ class Computers {
             return res.status(200).json({ success: true, data: computerUpdate });
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ success: false, error: "Internal server error" });
+            return res.status(500).json({success: false, error: 'unexpected_error'});
         }
     }
 
@@ -185,7 +185,7 @@ class Computers {
             });
             return res.status(200).json({ success: true, data: `computer_deleted` });
         } catch (error) {
-            return res.status(500).json({ success: false, error: "Internal server error" });
+            return res.status(500).json({success: false, error: 'unexpected_error'});
         }
     }
 

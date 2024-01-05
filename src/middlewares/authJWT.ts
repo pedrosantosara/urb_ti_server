@@ -9,10 +9,11 @@ interface ExtendedRequest extends ExpressRequest {
 const verifyLoginApp = async (req:ExtendedRequest, res:Response, next: NextFunction)=>{
     const authCookie = req.cookies.auth;
 
-    if(!authCookie) return res.status(401).json('Não autorizado');
+    if(!authCookie) return res.status(401).json({success:false, message:"unauthorized"});
+
 
     const [token] = authCookie.split(" ");
-    if(!token) return res.status(401).json('Não autorizado');
+    if(!token) return res.status(401).json({success: false, message: "not_authenticaded"});
 
    
     try {
@@ -21,7 +22,7 @@ const verifyLoginApp = async (req:ExtendedRequest, res:Response, next: NextFunct
 
         next();
     } catch (error) {
-        return res.status(401).json('Token inválido');
+        return res.status(401).json({success: false, message: "token_inval"});
     }
 }
 

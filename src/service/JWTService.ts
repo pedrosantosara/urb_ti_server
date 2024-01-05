@@ -4,7 +4,7 @@ import { Request as ExpressRequest } from "express";
 
 interface IJwtData {
     userId: number;
-    roles?: string;
+    role: string;
 }
 
 const jwtSecret = process.env.JWT_SECRET as string;

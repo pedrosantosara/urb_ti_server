@@ -4,10 +4,10 @@ import { prisma } from "../database/client";
 
 class Collaborators  {
   async register ( req: Request, res: Response) {
-    const {nome, email, matricula, setor} = req.body;
+    const {name, email, registration, sector} = req.body;
     
     try {
-      const collaboratorAlreadyExists = await prisma.collaborator.findUnique({ where: { matricula }});
+      const collaboratorAlreadyExists = await prisma.collaborator.findUnique({ where: { matricula: registration }});
       
       if (collaboratorAlreadyExists) {
         return res.status(400).json({success: false, error: 'collaborator_already_exist'});
@@ -15,23 +15,26 @@ class Collaborators  {
 
       const collaborator = await prisma.collaborator.create({
         data: {
-          nome, email, matricula, setor
+          nome:name,
+          email,
+          matricula:registration,
+          setor:sector
         }
       })
 
       return res.status(201).json({success: true, data: collaborator});
     } catch (error) {
       console.log(error);
-      return res.status(500).json({success: false, error: 'Erro inesperado'})
+      return res.status(500).json({success: false, error: 'unexpected_error'});
     }
   }
 
   async getCollaborator (req: Request, res: Response) {
-    const {matricula} = req.params;
+    const {registration} = req.params;
 
     try {
       const collaborator = await prisma.collaborator.findUnique({
-        where: { matricula }
+        where: { matricula:registration}
       });
   
       if (!collaborator) {
@@ -56,33 +59,25 @@ class Collaborators  {
   }
 
   async update ( req: Request, res: Response) {
-    const { matricula, nome, email, setor} = req.body;
+    const { registration, name, email, sector} = req.body;
     try {
-      const collaborator = await prisma.collaborator.findUnique({where: {matricula}});
+      const collaborator = await prisma.collaborator.findUnique({where: {matricula:registration}});
 
       if (!collaborator) return res.status(400).json({success: false, error: 'collaborator_not_exist'});
 
       const collaboratorUpdated = await prisma.collaborator.update({
-        where: {matricula},
+        where: {matricula:registration},
         data: {
-          nome, email, setor
+          nome:name,
+          email,
+          setor:sector
         }
       });
       return res.status(200).json({success: true, data: collaboratorUpdated})
     } catch (error) {
-      return res.status(500).json({success: false, error: 'Erro inesperado'})
+      return res.status(500).json({success: false, error: 'unexpected_error'});
     }
   }
-
-  async delete (req: Request, res: Response) {
-    const { matricula } = req.params;
-
-    const collaboratorDeleted = await prisma.collaborator.delete({
-      where: { matricula }
-    });
-
-  }
-
 }
 
 export default new Collaborators();

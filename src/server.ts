@@ -13,14 +13,14 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
+    origin: "http://89.117.75.191:5173",
+    methods: ["GET", "POST"]
   },
 });
 
 app.use(
   cors({
-    origin: "*",
+    origin: "http://89.117.75.191:5173",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
     optionsSuccessStatus: 204,

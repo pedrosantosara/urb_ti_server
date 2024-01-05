@@ -1,57 +1,71 @@
 import { Request, Response } from "express";
 import { prisma } from "../database/client";
 import bcrypt from "bcryptjs";
-import { isValidData } from "../service/validatorRegister";
 import { createToken } from "../service/JWTService";
 import { encryptPassword } from "../service/encryptPassword";
-import { config } from "process";
 
 class User {
 
 
-  async registerUser (req: Request, res: Response) {
-    const { name, email, password, confirmPassword } = req.body;
-    
-    const hashedPassword = await encryptPassword(password);
+    async registerUser(req: Request, res: Response) {
+        try {
+            const { name, email, password, confirmPassword } = req.body;
 
+            if (!password || !confirmPassword) {
+                return res.status(400).json({ sucess: false, message: "password_or_confirmPassword_null" })
+            }
+            if (password.length < 6 || password.length > 12) {
+                return res.status(400).json({ sucess: false, message: "password_lenght_smaller_or_bigger_then_minimum" })
+            }
 
-    const user = await prisma.user.create({
-        data: {
-            nome:name,
-            email,
-            senha: hashedPassword,
-            roles : 'PADRAO'
+            if (password !== confirmPassword) {
+                return res.status(400).json({ sucess: false, message: "password_different_from_confirmation" })
+            }
+            const hashedPassword = await encryptPassword(password);
+            const user = await prisma.user.create({
+                data: {
+                    nome: name,
+                    email,
+                    senha: hashedPassword,
+                    role: 'PADRAO'
+                }
+            });
+
+            res.status(201).json({ success: true, message: 'user_created' });
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ success: false, error: 'unexpected_error' });
         }
-    });
-
-    res.status(201).json({ success: true , message:'USER_CREATED'});
-}
+    }
 
 
-  async loginUser(req: Request, res: Response) {
-    const { email, password } = req.body;
+    async loginUser(req: Request, res: Response) {
+        try {
+            const { email, password } = req.body;
 
-    const user = await prisma.user.findFirst({where:{email}});
-    if(!user) return res.status(400).json({success:false, message: "EMAIL_OR_PASSWORD_INVALID"});
-
-    const passwordValid = await bcrypt.compare(password,user.senha);
-    if(!passwordValid)  return res.status(400).json({success:false, message: "EMAIL_OR_PASSWORD_INVALID"});
-
-    const IJwtData = {
-        userId: user.id,
-        role: user.roles
-    };
-
-    const token = createToken(IJwtData)
+            const user = await prisma.user.findFirst({ where: { email } });
+            if (!user) return res.status(400).json({ success: false, message: "email_or_password_invalid" });
     
-    res.cookie('auth', token, {maxAge:3600000, httpOnly: true, secure: false})
+            const passwordValid = await bcrypt.compare(password, user.senha);
+            if (!passwordValid) return res.status(400).json({ success: false, message: "email_or_password_invalid" });
     
-    res.json({
-        success:true,
-        message:"USER_AUTHENTICADED",
-    });
-}
-
+            const IJwtData = {
+                userId: user.id,
+                role: user.role
+            };
+    
+            const token = createToken(IJwtData)
+    
+            const cookies = res.cookie('auth', token, { maxAge: 3600000, path: '/', sameSite:"lax", secure:false  })
+            res.json({
+                success: true,
+                message: "user_authenticaded",
+            });
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ success: false, error: 'unexpected_error' });
+        }
+    }
 }
 
 export default new User();

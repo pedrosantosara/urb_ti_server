@@ -4,6 +4,20 @@ import { io } from "../server";
 
 
 class Orders {
+
+  // async getAllChamados(req:Request, res: Response) {
+  //   try { 
+    
+  //     const chamados = await prisma.order.findMany({where:{}});
+  //     return res.status(200).json({success: true, chamados});
+
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(500).json({ success: false, error: 'unexpected_error' });
+  //   }
+  // }
+
+  
   async criarChamado(req: Request, res: Response) {
     try {
       const { motivo, solicitante, setor, tombamentoComputador } = req.body;
@@ -17,7 +31,7 @@ class Orders {
       if (!tombamentoComputadorExistente) {
         return res.status(400).json({
           success: false,
-          error: `O computador com tombamento ${tombamentoComputador} não foi encontrado.`,
+          error: `not_found_tombamento: ${tombamentoComputador}`,
         });
       }
 
@@ -39,45 +53,87 @@ class Orders {
         }
       })
       io.emit("ChamadoCriado", order)
-      return res.status(200).json({sucess:true});
+      return res.status(200).json({ sucess: true });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ success: false, error: "Internal server error" });
+      return res.status(500).json({ success: false, error: 'unexpected_error' });
     }
   }
 
 
+  //todos podem fazer
+  async alterarOutrosCampos(req: Request, res: Response) {
+    try {
+      const { id, motivo, solicitante, setor, tombamentoComputador } = req.body;
+      const camposOpcionais = ["motivo", "solicitante", "setor", "tombamentoComputador"];
+      const camposAusentes = [];
+  
+      if (!id) camposAusentes.push("id");
+  
+      camposOpcionais.forEach(campo => {
+        if (!(campo in req.body)) {
+          camposAusentes.push(campo);
+        }
+      });
+  
+      if (camposAusentes.length > 0) {
+        return res.status(400).json({ success: false, error: `field_required: ${camposAusentes.join(", ")}.` });
+      }
+  
+      const orderUpdated = await prisma.order.update({
+        where: { id: Number(id) },
+        data: {
+          motivo,
+          solicitante,
+          setor,
+          tombamentoComputador
+        }
+      });
+  
+      io.emit("chamadoAtualizado", { id: id });
+  
+      return res.status(200).json({ success: true, message: 'order_updated' });
+
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ success: false, error: 'unexpected_error' });
+    }
+  }
+  
+
+
+  //Tecnico pode fazer isso e adm 
   async alterarStatusChamado(req: Request, res: Response) {
 
     try {
       const { id, status, solucao } = req.body
 
-    const camposAusentes = [];
+      const camposAusentes = [];
 
-    if (!id) camposAusentes.push("id");
-    if (!status) camposAusentes.push("status");
-    if (!solucao) camposAusentes.push("solucao");
+      if (!id) camposAusentes.push("id");
+      if (!status) camposAusentes.push("status");
+      if (!solucao) camposAusentes.push("solucao");
 
-    if (camposAusentes.length > 0) {
-      return res.status(400).json({ sucess: false, error: `field_required: ${camposAusentes.join(", ")}.` });
-    }
-
-    const computerUpdate = await prisma.order.update({
-      where: { id: Number(id) },
-      data: {
-        status: status,
-        solucao: solucao
+      if (camposAusentes.length > 0) {
+        return res.status(400).json({ sucess: false, error: `field_required: ${camposAusentes.join(", ")}.` });
       }
-    })
 
-    io.emit("chamadoAtualizado", { id: id, status: status })
+      const orderUpdated = await prisma.order.update({
+        where: { id: Number(id) },
+        data: {
+          status: status,
+          solucao: solucao
+        }
+      })
 
-    return res.status(200).json({ success: true });
+      io.emit("chamadoAtualizado", { id: id, status: status })
+
+      return res.status(200).json({ success: true, message: 'order_updated' });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ success: false, error: "Internal server error" });
+      return res.status(500).json({ success: false, error: 'unexpected_error' });
     }
-    
+
   }
 }
 
