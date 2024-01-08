@@ -94,7 +94,6 @@ class Computers {
         }
     }
 
-
     async getAllComputers(req: Request, res: Response) {
         const { take = 10, skip = 0, search } = req.query;
         try {   
@@ -114,19 +113,21 @@ class Computers {
                     { volume_hd: { contains: search, mode: 'insensitive' } },
                     { tipo: { contains: search, mode: 'insensitive' } },
                     { marca: { contains: search, mode: 'insensitive' } },
+                    { nome_colaborador: {contains: search, mode:'insensitive'}},
                 ].filter(Boolean) as Prisma.ComputerWhereInput[],
             };
-            if (search) {
-                const totalSearchedCount = await prisma.computer.count({where:whereCondition})
-                const computersSearched = await prisma.computer.findMany({
-                    where: whereCondition,
-                    take: Number(take),
-                    skip: Number(skip)*10,
-                });
-                return res.status(200).json({ success: true, data: computersSearched, pages: Math.ceil(totalSearchedCount/Number(take))});
+            if (!search) {
+                const allComputers = await prisma.computer.findMany({ take: Number(take), skip: Number(skip)*10 });
+                return res.status(200).json({ success: true, data: allComputers, pages: totalPages });
             }
-            const allComputers = await prisma.computer.findMany({ take: Number(take), skip: Number(skip)*10 });
-            return res.status(200).json({ success: true, data: allComputers, pages: totalPages });
+            const totalSearchedCount = await prisma.computer.count({where:whereCondition})
+            const computersSearched = await prisma.computer.findMany({
+                where: whereCondition,
+                take: Number(take),
+                skip: Number(skip)*10,
+            });
+            return res.status(200).json({ success: true, data: computersSearched, pages: Math.ceil(totalSearchedCount/Number(take))});
+           
         } catch (error) {
             return res.status(500).json({success: false, error: 'unexpected_error'});
         }
@@ -179,6 +180,12 @@ class Computers {
         try {
             const computer = await prisma.computer.findUnique({ where: { id: Number(id) } });
             if (!computer) return res.status(404).json({ success: false, error: 'computer_not_found' });
+
+            const orders = await prisma.order.findMany({where:{tombamentoComputador:computer.tombamento}});
+
+            if(orders.length>0){    
+                return res.status(400).json({success:false, error:`computer_linked_with_orders`, amount:orders.length});
+            }
 
             const computerDeleted = await prisma.computer.delete({
                 where: { id: Number(id) }

@@ -7,7 +7,7 @@ const authorizeDefaultUser = async (req: ExtendedRequest, res: Response, next: N
     const userRole: UserRole | undefined = req.user?.role as UserRole;
 
     if (!userRole || userRole === UserRole.PADRAO) {
-      return res.status(403).json({ success: false, error: 'Forbidden' });
+      return res.status(403).json({ success: false, error: 'waiting_admin_approval' });
     }
 
     next();

@@ -3,6 +3,7 @@ import { prisma } from "../database/client";
 import bcrypt from "bcryptjs";
 import { createToken } from "../service/JWTService";
 import { encryptPassword } from "../service/encryptPassword";
+import { ExtendedRequest } from "../middlewares/authJWT";
 
 class User {
 
@@ -38,25 +39,24 @@ class User {
         }
     }
 
-
     async loginUser(req: Request, res: Response) {
         try {
             const { email, password } = req.body;
 
             const user = await prisma.user.findFirst({ where: { email } });
             if (!user) return res.status(400).json({ success: false, message: "email_or_password_invalid" });
-    
+
             const passwordValid = await bcrypt.compare(password, user.senha);
             if (!passwordValid) return res.status(400).json({ success: false, message: "email_or_password_invalid" });
-    
+
             const IJwtData = {
                 userId: user.id,
                 role: user.role
             };
-    
+
             const token = createToken(IJwtData)
-    
-            const cookies = res.cookie('auth', token, { maxAge: 3600000, path: '/', sameSite:"lax", secure:false  })
+
+            const cookies = res.cookie('auth', token, { maxAge: 120000, path: '/', sameSite: "lax", secure: false })
             res.json({
                 success: true,
                 message: "user_authenticaded",
@@ -66,6 +66,19 @@ class User {
             return res.status(500).json({ success: false, error: 'unexpected_error' });
         }
     }
+
+    async logOut(req: ExtendedRequest, res: Response) {
+        try {
+            if (req.cookies.auth) {
+                res.clearCookie('auth');
+                return res.status(200).json({ success: true, message: 'logout_ok' })
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ success: false, error: 'unexpected_error' });
+        }
+    }
+
 }
 
 export default new User();
