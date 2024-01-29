@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://admin:12345678@localhost:5432/urb"
+}
+enum UserRole {
+  PADRAO
+  ADMINISTRADOR
+  TECNICO
+  TRIAGEM
+}
+
+model User {
+  id    Int      @id @default(autoincrement())
+  nome  String
+  email String
+  senha String
+  role  UserRole @default(PADRAO)
+}
+
+model Collaborator {
+  matricula    String   @unique
+  nome         String
+  email        String?  @unique
+  setor        String?  @db.VarChar(255)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("colaboradores")
+}
+
+model Computer {
+  id                  Int      @id @default(autoincrement())
+  tombamento          String   @unique
+  marca               String
+  gpu                 String
+  sistema_operacional String
+  placa_video         String
+  ram                 String
+  memoria             String
+  tipo_hd             String
+  volume_hd           String
+  tipo                String
+  nome_colaborador    String?
+  criadoEm            DateTime @default(now())
+  atualizadoEm        DateTime @updatedAt
+  chamado             Order[]
+
+  @@map("computadores")
+}
+
+
+
+model Order {
+  id                   Int      @id @default(autoincrement())
+  tipo                 String  
+  solicitante          String
+  descricao            String?
+  setor                String 
+  solucao              String?
+  status               Int      @default(0)
+  tombamentoComputador String?
+  responsavel          String?
+  computador           Computer? @relation(fields: [tombamentoComputador], references: [tombamento])
+  criadoEm             DateTime @default(now())
+  atualizadoEm         DateTime @updatedAt
+
+  @@map("chamado")
+}

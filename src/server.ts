@@ -3,10 +3,9 @@ import "dotenv/config";
 import routes from "./routes";
 import { prisma } from "./database/client";
 import cors from "cors";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import { createServer } from "http";
-import { Server } from 'socket.io';
-
+import { Server } from "socket.io";
 
 const port = process.env.PORT || 8084;
 
@@ -15,7 +14,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: "http://89.117.75.191:5173",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
   },
 });
 
@@ -32,7 +31,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(routes);
 
-
 io.on("connection", (socket) => {
   console.log("Novo cliente conectado:", socket.id);
 
@@ -40,7 +38,6 @@ io.on("connection", (socket) => {
     console.log("Cliente desconectado:", socket.id);
   });
 });
-
 
 httpServer.listen(port, async () => {
   console.log(`O servidor está escutando a porta: ${port}`);

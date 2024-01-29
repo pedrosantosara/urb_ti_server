@@ -74,9 +74,8 @@ class Admin {
             }
         })
 
-        return res.status(200).json({success:true, allUsers});
+        return res.status(200).json({success:true, data:allUsers});
     }
 }
-
 export default new Admin();
 
